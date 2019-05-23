@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">starfish</string>
+    <string name="action_settings">Settings</string>
+    <string name="allSwitch">  All Lights</string>
+    
+    <string-array name="spinnerList">
+        <item>One</item>
+        <item>Two</item>
+        <item>Three</item>
+        <item>Four</item>
+        <item>Five</item>
+        <item>Six</item>
+        <item>Seven</item>
+        <item>Eight</item>
+    </string-array>
+</resources>
