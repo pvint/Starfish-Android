@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -38,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     // temp string for spinner
     String spinList[] = { "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"};
 
+    FloatingActionButton fab;
+
     //Performing action onItemSelected and onNothing selected
     @Override
     public void onItemSelected(AdapterView<?> arg0, View arg1, int position,long id) {
@@ -61,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         bt = new BluetoothSPP(getApplicationContext());
 
-        FloatingActionButton fab = findViewById(R.id.fab);
+        fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -87,13 +91,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Toast.makeText(getApplicationContext()
                         , "Connected to " + name + "\n" + address
                         , Toast.LENGTH_SHORT).show();
-                bt.send("{\"ch\": 0, \"dc\": 2000}", true);
-
+                //bt.send("{\"ch\": 0, \"dc\": 2000}", true);
+                fab.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
             }
 
             public void onDeviceDisconnected() {
                 Toast.makeText(getApplicationContext()
                         , "Connection lost", Toast.LENGTH_SHORT).show();
+                fab.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
 
                 Intent intent = new Intent(getApplicationContext(), DeviceList.class);
                 startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
