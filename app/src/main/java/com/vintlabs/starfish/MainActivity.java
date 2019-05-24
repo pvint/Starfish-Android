@@ -135,6 +135,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
+        final Switch singleSwitch = (Switch) findViewById(R.id.singleSwitch);
+        singleSwitch.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (bt.getServiceState() == BluetoothState.STATE_CONNECTED) {
+
+                    int val = (singleSwitch.isChecked()) ? 100 : 0;
+
+                    //String s = "{\"ch\": -1,\"dc\":" + Integer.toString(val) + "}";
+                    //bt.send(s, true);
+                    btSetLight(lightChannel, val);
+                }
+            }
+        });
+
         SeekBar dimSeekbar = (SeekBar) findViewById(R.id.dimSeekbar);
 
         dimSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
