@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     FloatingActionButton fab;
     SeekBar dimSeekbar;
+    Switch singleSwitch;
 
     //Performing action onItemSelected and onNothing selected
     @Override
@@ -107,8 +108,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     s = message.substring(6,message.indexOf(","));
                     c = Integer.parseInt(s);
 
-                    if (c == spin.getSelectedItemPosition())
-                        dimSeekbar.setProgress((int) ( (double) v / 40.96));
+                    if (c == spin.getSelectedItemPosition()) {
+                        dimSeekbar.setProgress((int) ((double) v / 40.96));
+                        if ( v > 0 )
+                            singleSwitch.setChecked(true);
+                        else
+                            singleSwitch.setChecked(false);
+                    }
                     //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
                 }
 
@@ -177,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
-        final Switch singleSwitch = (Switch) findViewById(R.id.singleSwitch);
+        singleSwitch = (Switch) findViewById(R.id.singleSwitch);
         singleSwitch.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (bt.getServiceState() == BluetoothState.STATE_CONNECTED) {
@@ -247,6 +253,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 //Setting the ArrayAdapter data on the Spinner
         spin.setAdapter(aa);
+        
     }
 
 
