@@ -41,12 +41,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     String spinList[] = { "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"};
 
     FloatingActionButton fab;
+    SeekBar dimSeekbar;
 
     //Performing action onItemSelected and onNothing selected
     @Override
     public void onItemSelected(AdapterView<?> arg0, View arg1, int position,long id) {
         //Toast.makeText(getApplicationContext(), Integer.toString(position), Toast.LENGTH_LONG).show();
         lightChannel = position;
+
+        // query starfish for the current value of this channel
+        String s = "{\"q\": " + Integer.toString(lightChannel) + "}";
+        bt.send(s, crlf);
     }
 
     @Override
@@ -64,6 +69,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setSupportActionBar(toolbar);
 
         bt = new BluetoothSPP(getApplicationContext());
+
+        dimSeekbar = (SeekBar) findViewById(R.id.dimSeekbar);
 
         fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -85,6 +92,28 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             finish();
         }
 
+
+        bt.setOnDataReceivedListener(new BluetoothSPP.OnDataReceivedListener() {
+            public void onDataReceived(byte[] data, String message) {
+                // if we have channel and duty cycle, update the slider
+                // check if it starts with '{"ch":', string should be like {"ch":1,"dc":1234}
+                if (message.startsWith("{\"ch\":"))
+                {
+                    int v;
+                    String s = message.substring(13);
+                    v = Integer.parseInt(s.replace("}",""));
+
+                    int c;
+                    s = message.substring(6,message.indexOf(","));
+                    c = Integer.parseInt(s);
+
+                    if (c == spin.getSelectedItemPosition())
+                        dimSeekbar.setProgress((int) ( (double) v / 40.96));
+                    //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
 
         bt.setBluetoothConnectionListener(new BluetoothSPP.BluetoothConnectionListener() {
             public void onDeviceConnected(String name, String address) {
@@ -111,6 +140,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
+
+
+
+
+        bt.setAutoConnectionListener(new BluetoothSPP.AutoConnectionListener() {
+            public void onNewConnection(String name, String address) {
+                Log.i("Check", "New Connection - " + name + " - " + address);
+            }
+
+            public void onAutoConnectionStarted() {
+                Log.i("Check", "Auto menu_connection started");
+            }
+        });
         bt.enable();
         bt.setupService();
         bt.startService(false);
@@ -149,7 +191,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
-        SeekBar dimSeekbar = (SeekBar) findViewById(R.id.dimSeekbar);
 
         dimSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -158,7 +199,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 //int val = (int) ( (double) progress * 40.96 - 1.0);
                 //String s = "{\"ch\": -1, \"dc\":" + Integer.toString(val) + "}";
                 //bt.send(s, true);
-                btSetLight( lightChannel, progress);
+                if (fromUser)
+                    btSetLight( lightChannel, progress);
 
             }
 
@@ -197,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
-        Spinner spin = (Spinner) findViewById(R.id.spinner);
+        spin = (Spinner) findViewById(R.id.spinner);
         spin.setOnItemSelectedListener(this);
 
 //Creating the ArrayAdapter instance having the bank name list
