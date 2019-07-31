@@ -1,7 +1,9 @@
 package com.vintlabs.starfish;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
@@ -18,6 +20,7 @@ import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
@@ -41,6 +44,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     // temp string for spinner
     String spinList[] = { "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"};
+
+    AlertDialog.Builder alert;
+
+    ArrayAdapter aa;
 
     FloatingActionButton fab;
     SeekBar dimSeekbar;
@@ -261,11 +268,44 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         spin.setOnItemSelectedListener(this);
 
 //Creating the ArrayAdapter instance having the bank name list
-        ArrayAdapter aa = new ArrayAdapter(this,android.R.layout.simple_spinner_item,spinList);
+        aa = new ArrayAdapter(this,android.R.layout.simple_spinner_item,spinList);
         aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 //Setting the ArrayAdapter data on the Spinner
         spin.setAdapter(aa);
-        
+
+
+        alert = new AlertDialog.Builder(this);
+
+        alert.setTitle("Edit Light Name");
+        //alert.setMessage("Message");
+
+        // Set an EditText view to get user input
+        final EditText input = new EditText(this);
+        alert.setView(input);
+
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+                spinList[lightChannel] = input.getText().toString();
+                aa.notifyDataSetChanged();
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+            }
+        });
+
+        Button editNameButton = (Button) findViewById(R.id.editNameButton);
+
+        editNameButton.setOnClickListener( new View.OnClickListener() {
+                @Override
+                public void onClick( final View v ) {
+                    alert.show();
+            }
+
+        });
     }
 
 
