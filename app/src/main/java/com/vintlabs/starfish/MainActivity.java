@@ -22,6 +22,7 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import app.akexorcist.bluetotohspp.library.BluetoothSPP;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     Spinner spin;
     int lightChannel;
+    double waterTemperature;
 
     // temp string for spinner
     String spinList[] = { "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"};
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        final TextView waterTemperatureTextView = findViewById(R.id.waterTemperatureTextView);
 
         bt = new BluetoothSPP(getApplicationContext());
 
@@ -117,6 +120,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                     //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
                 }
+                else if (message.startsWith("{\"wt\":"))
+                {
+                    // "wt" is water temperature
+                    //String s = message.substring(13);
+                    String s = message.substring(6,message.indexOf("}"));
+                    waterTemperature = Double.parseDouble(s);
+                    waterTemperatureTextView.setText(s); //Double.toString(waterTemperature));
+                }
+
 
             }
         });
