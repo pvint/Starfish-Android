@@ -13,6 +13,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     boolean crlf = true;
 
     Spinner spin;
+    Button temperatureButton;
     int lightChannel;
     double waterTemperature;
 
@@ -89,11 +91,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             public void onClick(View view) {
                 //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 //      .setAction("Action", null).show();
+                //bt.disconnect();
+
                 btSelect();
             }
         });
 
         //Log.v("com.vintlabs.starfish", "b4 intent");
+
+        temperatureButton = (Button) findViewById(R.id.temperatureButton);
+        //temperatureButton.setOnClickListener(temperatureButtonOnClickListener());
 
 
         if (!bt.isBluetoothAvailable()) {
@@ -112,7 +119,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 {
                     int v;
                     String s = message.substring(13);
-                    v = Integer.parseInt(s.replace("}",""));
+                    s = s.substring(0, s.indexOf(","));
+                    v = Integer.parseInt(s);
 
                     int c;
                     s = message.substring(6,message.indexOf(","));
@@ -125,9 +133,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         else
                             singleSwitch.setChecked(false);
                     }
+
+                    // get channel's name
+                    s = message.substring(11);
+                    s = s.substring(s.indexOf(",") + 2);
+                    s = s.substring(s.indexOf(",") + 2);
+                    s = s.substring(0, s.indexOf("\""));
+
+                    spinList[lightChannel] = s;
+                    aa.notifyDataSetChanged();
+
                     //Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
                 }
-                else if (message.startsWith("{\"wt\":"))
+                else if (message.startsWith("{\"t\":"))
                 {
                     // "wt" is water temperature
                     //String s = message.substring(13);
@@ -217,6 +235,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         });
 
 
+
+
         dimSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -281,6 +301,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         // Set an EditText view to get user input
         final EditText input = new EditText(this);
+        input.setFilters(new InputFilter[] { new InputFilter.LengthFilter(15) });
+
         alert.setView(input);
 
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -288,6 +310,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 spinList[lightChannel] = input.getText().toString();
                 aa.notifyDataSetChanged();
+                btSetName(lightChannel,input.getText().toString());
             }
         });
 
@@ -300,9 +323,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Button editNameButton = (Button) findViewById(R.id.editNameButton);
 
         editNameButton.setOnClickListener( new View.OnClickListener() {
-                @Override
-                public void onClick( final View v ) {
-                    alert.show();
+            @Override
+            public void onClick( final View v ) {
+                alert.show();
+            }
+
+        });
+
+        Button getTemperatureButton = (Button) findViewById(R.id.temperatureButton);
+
+        getTemperatureButton.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick( final View v ) {
+
+                String s = "{\"t\": 0}";
+                bt.send(s, crlf);
             }
 
         });
@@ -375,4 +410,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         String s = "{\"ch\": " + Integer.toString(ch) + ", \"dc\":" + Integer.toString(val) + "}";
         bt.send(s, crlf);
     }
+
+    void btSetName(int ch, String name)
+    {
+        String s = "{\"cn\": " + Integer.toString(ch) + ", \"dc\":\"" + name + "\"}";
+        bt.send(s, crlf);
+    }
+
+
 }
